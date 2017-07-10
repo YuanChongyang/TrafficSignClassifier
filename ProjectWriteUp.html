@@ -11769,7 +11769,10 @@ Number of classes = 43</p>
 <h3 id="Include-an-exploratory-visualization-of-the-dataset.">Include an exploratory visualization of the dataset.<a class="anchor-link" href="#Include-an-exploratory-visualization-of-the-dataset.">&#182;</a></h3><p>To further understand the data, I visulized few of the images and also explored on the distribution of different classes in each set. From the histograms it is clear that the data sets do not have equal samples of all classes and some of the classes have more occurances than the others. Though, between training, test and validation set, this distribution is more or less the same.</p>
 <h3 id="Design-and-Test-a-Model-Architecture">Design and Test a Model Architecture<a class="anchor-link" href="#Design-and-Test-a-Model-Architecture">&#182;</a></h3><p>I used training set to train the model and then measure its performance on the validation set and tweaked the model until desired accuracy was achieved.</p>
 <p>The first thing I did was to normalize the data. In the previous lessons we learned that you can normalize the data to have a zero mean and reasonable varianve by x=(x-128)/128 but in this case it does not yield to the best result and validation accuracy; I changed the normalization to x=x/255 where 255 is the maximum value each pixel can have. I completely skipped over making 0 to be the mean; I believe the reason for lower performance with zero mean is due to use of ReLues as activation function; shifting the mean to zero means some of the pixel values will be negative; then after applying the weights and biases, the logits may still stay negative. Then, when activation function is applied, all the negative values turn to zero and do not activate the node. Therefore, some of the nodes do not contribute to the network and the performance stays low.</p>
-<p>I followed the same methodolgy used in class, using 2 convolution layers and 3 fully connected layers. I used pooling after each convolution layer. The only difference with what we used in class is the filter size and number of used filters; I used larger filters with higher depth in convolution layers which resulted in more nodes in the first fully connected layer.</p>
+<h4 id="the-approach-to-finding-a-solution.">the approach to finding a solution.<a class="anchor-link" href="#the-approach-to-finding-a-solution.">&#182;</a></h4><p>I followed the same methodolgy used in class, using 2 convolution layers and 3 fully connected layers. I used pooling after each convolution layer to help reduce the complexity and challenges in working with lots of data and reduce the size of features. Initially, I used the same set up as what we used in calss which resulted in a poor performance (about 80% on validation set). The biggest improvement came when I started normalizing the input data, as described above (brought the performance to about 92%).</p>
+<p>Later, I started changing the size of the filters and number of them in the convolution layers. The only difference with what we used in class is the filter size and number of used filters; I used larger filters with higher depth in convolution layers which resulted in more nodes in the first fully connected layer. Larger filters means the model tries to learn from a larger area of the picture and can discover the relationship between more pixels but it comes in the expense of larger model and more complexity. I also used more filters to be able to capture more feautures, specially in the first layers. This improved the performance on the validation set to more than 94%.</p>
+<h5 id="why-this-approach?">why this approach?<a class="anchor-link" href="#why-this-approach?">&#182;</a></h5><p>I believe this is a good approach for this problem because it's another image recognition and classification problem; similar to the Mnist data set, this data is consisted of relatively simple images which are consisting of curves and lines. A regular NN can't easily capture features like lines and curves but a CNN looks at the relationships between the pixels and that helps in distinguishing between different signs while finding the similarities between them (for example, a lot of the images have a circle around the sign but the enclosed information are different).</p>
+<p>We could expand this approach and add more convolutional layers; I did not try it but considering the 94% accuracy on validation set, I worry adding more layers (if we keep the size of existing ones unchanged) could result in overfitting!</p>
 <p>My final model consisted of the following layers:</p>
 <table>
 <thead><tr>
@@ -11829,7 +11832,7 @@ Number of classes = 43</p>
 <p>test set accuracy of 93.6%</p>
 <p>web test accuracy of 80%</p>
 <h3 id="Test-a-Model-on-New-Images">Test a Model on New Images<a class="anchor-link" href="#Test-a-Model-on-New-Images">&#182;</a></h3><p>I chose randomly five pictures from German Traffic Data set and ran the trained model. The prediction for all 5 was correct. The results are summarized below</p>
-<p>Here are the results of the prediction:</p>
+<h4 id="New-images-found-in-provided-test-data-set">New images found in provided test data set<a class="anchor-link" href="#New-images-found-in-provided-test-data-set">&#182;</a></h4><p>Here are the results of the prediction:</p>
 <table>
 <thead><tr>
 <th>Image</th>
@@ -11860,6 +11863,7 @@ Number of classes = 43</p>
 </tbody>
 </table>
 <p>Although the model performed well on 80% of these images, the test set accuracy is 93%! There are some images which include two signs and those are hard to predict. Also, there are a lot of similarities between images; for example many of them include a red circle around the image which makes a lot of pixels to look similar. This is especially pronounced when the image quality is low or the sign occupies a small portion of the image; I think the latest has been part of the reason in the wrong prediction in above sampled images from test set.</p>
+<h4 id="New-images-found-from-the-web">New images found from the web<a class="anchor-link" href="#New-images-found-from-the-web">&#182;</a></h4><p>reference: <a href="https://en.wikipedia.org/wiki/Road_signs_in_Germany">https://en.wikipedia.org/wiki/Road_signs_in_Germany</a></p>
 <p>On the images downloaded from web, the only wrong prediction comes from a sign which the model has not seen in the training set;</p>
 <table>
 <thead><tr>
@@ -11891,9 +11895,24 @@ Number of classes = 43</p>
 </tbody>
 </table>
 <p>Regarding the sample set from test dataset, on the first two and the last two predictions the model is certain since the softmax probabilities are 100%. On the remaining image, the one which prediction is wrong, the model is only 53% certain this is the right class and the right answer is not among the top 5 probabilities.</p>
+<h4 id="Difficulties-of-model-on-the-test-set">Difficulties of model on the test set<a class="anchor-link" href="#Difficulties-of-model-on-the-test-set">&#182;</a></h4><p>The pictures I found on the web are relatively clean pictures and in better quality than my training set. So, it should not be super hard for the model to classify them, though one of the challenges I can see is the black background in these pictures while the trained model mainly have real streets' background. Also, there were some (in case of 5 samples, 1 picture) which model has not seen before and was very different from other 43 classes. Of course the model failed to correctly classify it.</p>
+<p>Also, if number of occurances of these pictures were low in the training set, the model would have less chances to learn about them and therefore, will have higher chances of predicting it wrong.</p>
 
 </div>
 </div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+</div>
+</div>
+</div>
+
 </div>
     </div>
   </div>
